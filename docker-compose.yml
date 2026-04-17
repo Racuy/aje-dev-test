@@ -11,13 +11,18 @@ services:
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 5s
-      timeout: 5s
+      timeout: 10s
       retries: 10
+      start_period: 30s
 
   app:
     build: .
     ports:
       - "3000:3000"
+    restart: on-failure
+    volumes:
+      - .:/app
+      - /app/node_modules
     depends_on:
       db:
         condition: service_healthy

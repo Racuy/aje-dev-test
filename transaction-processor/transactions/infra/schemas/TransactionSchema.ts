@@ -1,7 +1,13 @@
 import { EntitySchema } from 'typeorm'
 import { Transaction } from '../../domain/Transaction'
+import { UserAccount } from '../../../user_accounts/domain/UserAccount'
 
-export const TransactionSchema = new EntitySchema<Transaction>({
+type TransactionEntity = Transaction & {
+  user: UserAccount
+  merchant: UserAccount
+}
+
+export const TransactionSchema = new EntitySchema<TransactionEntity>({
   name: 'Transaction',
   tableName: 'transactions',
   columns: {
@@ -13,5 +19,17 @@ export const TransactionSchema = new EntitySchema<Transaction>({
     currency: { type: String, nullable: false },
     status: { type: String, default: 'pending', nullable: false },
     created_at: { type: Date, createDate: true, nullable: false },
+  },
+  relations: {
+    user: {
+      type: 'many-to-one',
+      target: 'UserAccount',
+      joinColumn: { name: 'user_id' },
+    },
+    merchant: {
+      type: 'many-to-one',
+      target: 'UserAccount',
+      joinColumn: { name: 'merchant_id' },
+    },
   },
 })
