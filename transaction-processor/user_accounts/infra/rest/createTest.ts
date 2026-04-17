@@ -1,17 +1,9 @@
 import Router from '@koa/router'
 import { CreateTestAccounts } from '../../application/CreateTestAccounts'
-import { UserAccountRepository } from '../repositories/UserAccountRepository'
-
-const router = new Router()
-
-router.post('/createTest', async (ctx) => {
-  const result = await new CreateTestAccounts(new UserAccountRepository()).execute()
-  ctx.status = 201
-  ctx.body = result
-})
+import { IUserAccountRepository } from '../../domain/IUserAccountRepository'
 
 export const swaggerPaths = {
-  '/createTest': {
+  '/user_accounts/createTest': {
     post: {
       summary: 'Create two test accounts with 1000 PEN each',
       security: [{ bearerAuth: [] }],
@@ -35,4 +27,14 @@ export const swaggerPaths = {
   },
 }
 
-export default router
+export default function createRouter(userAccountRepo: IUserAccountRepository) {
+  const router = new Router()
+
+  router.post('/createTest', async (ctx) => {
+    const result = await new CreateTestAccounts(userAccountRepo).execute()
+    ctx.status = 201
+    ctx.body = result
+  })
+
+  return router
+}

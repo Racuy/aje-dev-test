@@ -1,15 +1,16 @@
 import Router from '@koa/router'
+import { IUserAccountRepository } from '../../domain/IUserAccountRepository'
 import createTestRouter, { swaggerPaths as createTestPaths } from './createTest'
 import getByIdRouter, { swaggerPaths as getByIdPaths } from './getById'
-
-const router = new Router()
-
-router.use(createTestRouter.routes())
-router.use(getByIdRouter.routes())
 
 export const swaggerPaths = {
   ...createTestPaths,
   ...getByIdPaths,
 }
 
-export default router
+export default function createRouter(userAccountRepo: IUserAccountRepository) {
+  const router = new Router()
+  router.use(createTestRouter(userAccountRepo).routes())
+  router.use(getByIdRouter(userAccountRepo).routes())
+  return router
+}

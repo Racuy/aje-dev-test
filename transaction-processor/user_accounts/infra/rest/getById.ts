@@ -1,17 +1,6 @@
 import Router from '@koa/router'
-import { UserAccountRepository } from '../repositories/UserAccountRepository'
-
-const router = new Router()
-
-router.get('/user_accounts/:id', async (ctx) => {
-  const account = await new UserAccountRepository().findById(Number(ctx.params.id))
-  if (!account) {
-    ctx.status = 404
-    ctx.body = { error: 'Account not found' }
-    return
-  }
-  ctx.body = account
-})
+import { GetUserAccountById } from '../../application/GetUserAccountById'
+import { IUserAccountRepository } from '../../domain/IUserAccountRepository'
 
 export const swaggerPaths = {
   '/user_accounts/{id}': {
@@ -28,7 +17,7 @@ export const swaggerPaths = {
                 type: 'object',
                 properties: {
                   id: { type: 'number' },
-                  balance: { type: 'string' },
+                  balance: { type: 'number' },
                   currency: { type: 'string' },
                 },
               },
@@ -41,4 +30,13 @@ export const swaggerPaths = {
   },
 }
 
-export default router
+export default function createRouter(userAccountRepo: IUserAccountRepository) {
+  const router = new Router()
+
+  router.get('/:id', async (ctx) => {
+    const account = await new GetUserAccountById(userAccountRepo).execute(Number(ctx.params.id))
+    ctx.body = { ...account }
+  })
+
+  return router
+}

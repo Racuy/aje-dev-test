@@ -7,6 +7,5 @@ export type Transaction = {
   merchant_id: number
   amount: string
   currency: Currency
-  status: string
   created_at: Date
 }

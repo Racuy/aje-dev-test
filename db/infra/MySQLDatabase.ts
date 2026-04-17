@@ -1,6 +1,5 @@
 import 'reflect-metadata'
 import { DataSource, EntitySchema } from 'typeorm'
-import { IDatabase } from '../domain/IDatabase'
 
 class MySQLDatabase {
   private static instance: Promise<MySQLDatabase>

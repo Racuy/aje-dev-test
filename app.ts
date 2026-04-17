@@ -4,7 +4,8 @@ import { koaSwagger } from 'koa2-swagger-ui'
 import MySQLDatabase from './db/infra/MySQLDatabase'
 import { UserAccountSchema } from './transaction-processor/user_accounts/infra/schemas/UserAccountSchema'
 import { TransactionSchema } from './transaction-processor/transactions/infra/schemas/TransactionSchema'
-import userAccountRouter, { swaggerPaths } from './transaction-processor/user_accounts/infra/rest/router'
+import Router from '@koa/router'
+import router, { swaggerPaths } from './transaction-processor/router'
 
 const app = new Koa()
 const PORT = process.env.PORT || 3000
@@ -37,11 +38,12 @@ app.use(async (ctx, next) => {
 })
 
 app.use(koaSwagger({
-  routePrefix: '/docs',
+  routePrefix: '/api/docs',
   swaggerOptions: {
     spec: {
       openapi: '3.0.0',
       info: { title: 'Transaction Processor API', version: '1.0.0' },
+      servers: [{ url: '/api/transaction-processor' }],
       components: {
         securitySchemes: {
           bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -52,7 +54,9 @@ app.use(koaSwagger({
   },
 }))
 
-app.use(userAccountRouter.routes())
+const apiRouter = new Router({ prefix: '/api' })
+apiRouter.use('/transaction-processor', router.routes())
+app.use(apiRouter.routes())
 
 MySQLDatabase.getConnection()
   .then(() => {
